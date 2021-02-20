@@ -1,5 +1,5 @@
 # PhilFood
-Generate random menus based on over a decade of Phil LaRocca's cooking.
+Generate random menus from over a decade of Phil LaRocca's cooking.
 
 I built a simple UI using Flask + MongoDB for tagging out raw menu text with individual dishes, then wrote functions to turn that data into inputs for a JavaScript random generator, plus a timeline visualization build in d3.
 
