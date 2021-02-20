@@ -1,6 +1,5 @@
-from flask import Flask, g, redirect, render_template, request, session, jsonify
+from flask import Flask, render_template, request, jsonify
 import mongo
-import json
 
 # Create and configure app
 app = Flask(__name__)

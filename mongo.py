@@ -12,8 +12,7 @@ from scipy.stats import t
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
 
-import click
-from flask import current_app, g
+from flask import g
 
 def get_db():
     try:
@@ -29,43 +28,11 @@ def close_db(e=None):
         db.close()
 
 def get_meals():
+    # Get all meals for tagger
     return list(get_db().phil_food.meals_v2.find())
 
-def update_meal(_id, update):
-    meals = get_db().phil_food.meals_v2
-    date = datetime.strptime(_id, '%Y-%m-%d %H:%M:%S')
-    return meals.update_one({'_id': date}, {'$set': update})
-
-def update_meal_name(_ids, update):
-    db = get_db().phil_food
-    for _id in _ids.split(','):
-        date = datetime.strptime(_id, '%Y-%m-%d %H:%M:%S')
-        meal = db.meals_v2.find_one({'_id': date})
-        for dish in meal['dishes']:
-            if update.get('old_name') and dish['name'] == update['old_name']:
-                dish['name'] = update.get('new_name')
-            if update.get('old_text') and dish['text'] == update['old_text']:
-                dish['text'] = update.get('new_text')
-        db.meals_v2.update_one({'_id': date}, {'$set': meal})
-    return 1
-
-def add_group(name, group):
-    return get_db().phil_food.dishes.insert_one({'_id': name, 'group': group})
-
-def update_meal_group(update):
-    dishes = get_db().phil_food.dishes
-    if update['old_name'] == update['new_name']:
-        dishes.update_one(
-            {'_id': update['old_name']},
-            {'$set': {'group': update['new_group']}}
-            )
-    else:
-        dishes.delete_one({'_id': update['old_name']})
-        dishes.insert_one(
-            {'_id': update['new_name'], 'group': update['new_group']}
-            )
-
 def get_mapped_meals():
+    # Get mapped meals for mapper
     mapped = get_db().phil_food.meals_v2.aggregate([
         {'$unwind': '$dishes'},
         {'$group': {
@@ -102,6 +69,42 @@ def get_mapped_meals():
         m['_id'] = m['_id'][0] if m['_id'] else None
     return mapped
 
+# Update functions for changes made in tagger & mapper
+def update_meal(_id, update):
+    meals = get_db().phil_food.meals_v2
+    date = datetime.strptime(_id, '%Y-%m-%d %H:%M:%S')
+    return meals.update_one({'_id': date}, {'$set': update})
+
+def update_meal_name(_ids, update):
+    db = get_db().phil_food
+    for _id in _ids.split(','):
+        date = datetime.strptime(_id, '%Y-%m-%d %H:%M:%S')
+        meal = db.meals_v2.find_one({'_id': date})
+        for dish in meal['dishes']:
+            if update.get('old_name') and dish['name'] == update['old_name']:
+                dish['name'] = update.get('new_name')
+            if update.get('old_text') and dish['text'] == update['old_text']:
+                dish['text'] = update.get('new_text')
+        db.meals_v2.update_one({'_id': date}, {'$set': meal})
+    return 1
+
+def add_group(name, group):
+    return get_db().phil_food.dishes.insert_one({'_id': name, 'group': group})
+
+def update_meal_group(update):
+    dishes = get_db().phil_food.dishes
+    if update['old_name'] == update['new_name']:
+        dishes.update_one(
+            {'_id': update['old_name']},
+            {'$set': {'group': update['new_group']}}
+            )
+    else:
+        dishes.delete_one({'_id': update['old_name']})
+        dishes.insert_one(
+            {'_id': update['new_name'], 'group': update['new_group']}
+            )
+
+# Debug functions
 def get_group_overlaps():
     meals = get_db().phil_food.meals_v2
     return {m['group']: m['overlaps'] for m in meals.aggregate([
@@ -150,6 +153,7 @@ def get_exclusive_groups():
             combos[m[1]][m[0]] += c['count']
     return combos
 
+# Functions to get data for Summary lists
 def get_dish_counts(decade='.'):
     meals = get_db().phil_food.meals_v2
     counts = {m['_id']: m['dishes'] for m in meals.aggregate([
@@ -183,7 +187,7 @@ def get_dish_counts(decade='.'):
         ]))
     return counts
 
-def nice_source(srcs):
+def format_source(srcs):
     src = []
     if 'Phil Facebook' in srcs:
         src.append("<a href='https://www.facebook.com/" + \
@@ -223,7 +227,7 @@ def get_decade_stats(decade='.'):
         {'$project': {'_id': 0, 'count': 1, 'sources': 1}}
         ]))
     stats['count'] = format(stats['count'], ',d')
-    stats['sources'] = nice_source(set(stats['sources']))
+    stats['sources'] = format_source(set(stats['sources']))
     return stats
 
 def get_decade_top():
@@ -246,38 +250,7 @@ def get_decade_top():
         ]
     return counts
 
-def get_top_dishes():
-    meals = get_db().phil_food.meals_v2
-    courses = get_dish_counts()
-    print(meals.count())
-    print('\nMAINS')
-    for m in courses['Main']:
-        if m['count'] >= 10:
-            print(m['_id'] + '\t' + str(m['count']))
-    print('\nSIDES')
-    for m in courses['Side']:
-        if m['count'] >= 10:
-            print(m['_id'] + '\t' + str(m['count']))
-    print('\nDESSERTS')
-    for m in courses['Dessert']:
-        if m['count'] >= 10:
-            print(m['_id'] + '\t' + str(m['count']))
-    print('\nFRIDAY')
-    dishes = meals.aggregate([
-            {'$unwind': '$dishes'},
-            {'$match': {'dishes.course': 'Main'}},
-            {'$match': {'$or': [{'day': 'Fri'}, {'day': 'Sat'}]}},
-            {'$group': {
-                '_id': '$dishes.name',
-                'count': {'$sum': 1}
-                }
-             },
-            {'$sort': {'count': -1}}
-            ])
-    for m in dishes:
-        if m['count'] >= 2:
-            print(m['_id'] + '\t' + str(m['count']))
-
+# Functions to get data for Timeline
 def get_dish_semester_counts(meals, start=None):
     meals = meals.find()
     counts = defaultdict(dict)
@@ -372,18 +345,7 @@ def get_relevant_terms(meals, start=None):
 
     return sorted(output, key=lambda o: o['semester'])
 
-def random_probs():
-    meals = get_db().phil_food.meals_v2
-    dishes = get_db().phil_food.dishes
-    return (
-        _random_get_day_probs(meals),
-        _random_get_day_main_probs(meals),
-        _random_get_main2_probs(meals),
-        _random_get_dessert_side_probs(meals, dishes, 'Side'),
-        _random_get_side_stop_pct(meals),
-        _random_get_dessert_side_probs(meals, dishes, 'Dessert')
-        )
-
+# Randomizer Functions - random_menu() is reimplemented in randomizer.js
 def random_menu():
     meals = get_db().phil_food.meals_v2
     dishes = get_db().phil_food.dishes
@@ -743,6 +705,7 @@ def _random_get_dessert_side_probs(meals, dishes, course):
 
     return day_side_probs
 
+# Function to re-generate phildata.js
 def generate_data():
     meals = get_db().phil_food.meals_v2
     dishes = get_db().phil_food.dishes
@@ -919,6 +882,7 @@ def generate_data():
         out.write('/*** TIMELINE DATA ***/\n')
         out.write('const timeline = ' + json.dumps(timeline) + ';')
 
+# Get a particular menu's text
 def get_menu(semester, index):
     meals = get_db().phil_food.meals_v2
     menu = list(meals.aggregate([
@@ -933,6 +897,7 @@ def get_menu(semester, index):
     else:
         return {}
 
+# Helper function to load new menus
 def load_menus(file_name, delim='\t'):
     """Load new menus from Meals.csv file."""
     db = MongoClient().phil_food
