@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="stylesheet" href="/static/philfood.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com"> 
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="/static/phildata.js"></script>
+    <script src="/static/randomizer.js"></script>
+    <script src="/static/timeline.js"></script>
+    <script src="/static/allmenus.js"></script>
+    <!-- Download FontFaceObserver from here: https://github.com/bramstein/fontfaceobserver -->
+    <script src="/static/fontfaceobserver.standalone.js"></script>
+    <style>
+      .phil-food { margin: 17px 30px; }
+    </style>
+  </head>
+  <body>
+    <div class="phil-food">
+      <div class="fridge">
+        <div class="lock">
+          <div class="keyhole"></div>
+        </div>
+        <div class="handle"></div>
+        <div class="fridge-top-left"></div>
+        <div class="fridge-top">
+          <div class="btn btn-primary btn-xs" onclick="drawMenus();">Randomize Menus!</div>
+        </div>
+        <div class="fridge-door"></div>
+      </div>
+      <div class="summary">
+        <h1>Phil's Kitchen through the Years</h1>
+        {% for decade in dishes %}
+        <div class="summary-head">{{ decade.decade }}<span class="count">{{ decade.stats.count }} menus</span></div>
+        <div class="summary-row toggle">
+          <div class="summary-info">{{ decade.stats.sources|safe }}</div>
+          <div class="summary-list">
+            <div class="summary-list-head">Main Courses</div>
+            {% for dish in decade.lists.Main %}{% if loop.index <= 10 %}
+            <div class="summary-list-item">{{ dish.name }}<span class="count">{{ dish.count }}</span></div>
+            {% endif %}{% endfor %}
+          </div>
+          {% if decade.lists.Side|length > 0 %}<div class="summary-list">
+            <div class="summary-list-head">Side Dishes</div>
+            {% for dish in decade.lists.Side %}{% if loop.index <= 10 %}
+            <div class="summary-list-item">{{ dish.name }}<span class="count">{{ dish.count }}</span></div>
+            {% endif %}{% endfor %}
+          </div>{% endif %}
+          {% if decade.lists.Dessert|length > 0 %}<div class="summary-list">
+            <div class="summary-list-head">Desserts</div>
+            {% for dish in decade.lists.Dessert %}{% if loop.index <= 10 %}
+            <div class="summary-list-item">{{ dish.name }}<span class="count">{{ dish.count }}</span></div>
+            {% endif %}{% endfor %}
+          </div>{% endif %}
+          {% if decade.lists.Friday|length >= 10 %}<div class="summary-list">
+            <div class="summary-list-head">Friday Dinners</div>
+            {% for dish in decade.lists.Friday %}{% if loop.index <= 10 %}
+            <div class="summary-list-item">{{ dish.name }}<span class="count">{{ dish.count }}</span></div>
+            {% endif %}{% endfor %}
+          </div>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      <hr>
+      <h1 style="text-align: center;">Menu Timeline</h1>
+      <div class="plot-holder">
+        <svg id="meal-plot"></svg>
+        <div id="menu-modal">
+          <div id="menu-day"></div>
+          <div id="menu-menu"></div>
+        </div>
+      </div>
+      <h4 style="text-align: center;">Each Semester's Most Distinctive Meal</h4>
+      <div id="key-dishes"></div>
+      <div class="summary-row">
+        <div class="summary-list scroll" data-course="Main">
+          <div class="summary-list-head">Main Courses</div>
+          {% for dish in dishes.0.lists.Main if dish.count >= 2 %}
+          <div class="summary-list-item dish">
+            <span class="name">{{ dish.name }}</span>
+            <span class="count">{{ dish.count }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="summary-list scroll" data-course="Side">
+          <div class="summary-list-head">Side Dishes</div>
+          {% for dish in dishes.0.lists.Side if dish.count >= 2 %}
+          <div class="summary-list-item dish">
+            <span class="name">{{ dish.name }}</span>
+            <span class="count">{{ dish.count }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="summary-list scroll" data-course="Dessert">
+          <div class="summary-list-head">Desserts</div>
+          {% for dish in dishes.0.lists.Dessert if dish.count >= 2 %}
+          <div class="summary-list-item dish">
+            <span class="name">{{ dish.name }}</span>
+            <span class="count">{{ dish.count }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="summary-list scroll" data-course="Friday">
+          <div class="summary-list-head">Friday Dinners</div>
+          {% for dish in dishes.0.lists.Friday %}
+          <div class="summary-list-item dish">
+            <span class="name">{{ dish.name }}</span>
+            <span class="count">{{ dish.count }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <script>
+      ///*** Summary Accordion ***///
+      const slideDown = elem => elem.style.height = elem.scrollHeight + "px";
+      const toggleRows = function() {
+        document.querySelectorAll(".summary-row.toggle").forEach(e => e.style.height = 0);
+        slideDown(this.nextElementSibling);
+      }
+      let headers = document.getElementsByClassName("summary-head");
+      for (let i=0; i < headers.length; i++) {
+        headers[i].addEventListener('click', toggleRows);
+      }
+      window.setTimeout(function() {
+        slideDown(document.querySelector(".summary-row.toggle"));
+      }, 100);
+
+      // Font needs to have loaded before we can check for overflow
+      new FontFaceObserver('Patrick Hand').load().then(drawMenus);
+
+      drawTimeline();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,390 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <style>
+      .pull-right {
+        float: right;
+      }
+      
+      #searchbox {
+        border: 1px solid #dedede;
+        border-radius: 3px;
+        font-size: 14pt;
+        margin-bottom: 12px;
+        padding: 8px;
+        width: 100%;
+      }
+      
+      #autocomplete {
+        position: absolute;
+        z-index: 2000;
+        background-color: white;
+        border: 1px solid #dedede;
+        border-radius: 0 0 3px 3px;
+        padding-top: 4px;
+      }
+      #autocomplete div {
+        cursor: pointer;
+        padding: 4px;
+      }
+      #autocomplete div:hover {
+        background-color: #337ab7;
+        color: white;
+      }
+      
+      .toggle-tagged {
+        margin-bottom: 8px;
+      }
+      
+      .meal {
+        background-color: #efefef;
+        border: 1px solid #dedede;
+        border-radius: 3px;
+        margin-bottom: 12px;
+        padding: 5px;
+      }
+      .meal.done {
+        background-color: #fafafa;
+      }
+      
+      .metadata {
+        float: left;
+        width: 45%;
+      }
+      
+      .tagholder {
+        float: right;
+        width: 50%;
+      }
+      
+      .meal-date {
+        font-size: 12pt;
+        margin-bottom: 8px;
+      }
+      
+      .meal-text {
+        font-size: 10pt;
+      }
+      .meal-text textarea {
+        font-size: 10pt;
+        padding: 4px;
+      }
+      
+      .tag-list {
+        background-color: white;
+        border: 1px solid #dedede;
+        border-radius: 3px;
+        height: 30px;
+        margin-bottom: 4px;
+        padding: 4px;
+      }
+      .tag {
+        float: left;
+        border: 1px solid;
+        border-radius: 3px;
+        padding: 2px;
+        margin-right: 4px;
+        color: white;
+        font-size: 8pt;
+      }
+      .dish-main .tag {
+        border-color: #286090;
+        background-color: #337ab7;
+      }
+      .dish-side .tag {
+        border-color: #ec971f;
+        background-color: #f0ad4e;
+      }
+      .dish-dessert .tag {
+        border-color: #449d44;
+        background-color: #5cb85c;
+      }
+      
+      .add-tag {
+        color: #dedede;
+        float: left;
+        font-weight: bolder;
+        font-size: 12pt;
+        cursor: pointer;
+        line-height: 15px;
+        margin-left: 4px;
+      }
+      .add-tag:hover {
+        color: #aaa;
+      }
+      
+      .form-group-sm label {
+        height: 30px;
+        padding-top: 6px;
+        font-size: 12px;
+      }
+      
+      .form-group-sm .form-control {
+        height: 30px;
+        padding: 5px 10px;
+        font-size: 12px;
+        line-height: 1.5;
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Tag Menus!</h1>
+      <div class="progress">
+        <div class="progress-bar" style="width: {{ pct }}%;">
+          <span style="float: right; font-weight: bold;">{{ pct|int }}%</span>
+        </div>
+      </div>
+      <div class="row"><input id="searchbox" type="text"></div>
+      <div class="row">
+        <input type="button" class="btn btn-xs btn-default toggle-tagged" value="Show Tagged">
+        <span class="pull-right"><span id="res-count"></span> / {{ meals|length }}</span>
+      </div>
+      <div class="result">
+        {% for meal in meals %}
+        <div class="row meal{% if meal.untagged == "" %} done{% endif %}" data-id="{{ meal._id }}">
+          <div class="metadata">
+            <div class="meal-date">{{ meal.date.strftime('%A %b %d, %Y') }}</div>
+            <div class="meal-text">
+              <p>{{ meal.meal }}</p>
+              <textarea class="form-control">{{ meal.untagged }}</textarea>
+            </div>
+          </div>
+          <div class="tagholder">
+            <div class="tag-list dish-main" data-dish="main">
+              {% for dish in meal.dishes if dish.course == "Main" %}
+              <div class="tag" data-text="{{ dish.text }}">{{ dish.name }}</div>
+              {% endfor %}
+              <span class="add-tag">+</span>
+            </div>
+            <div class="tag-list dish-side" data-dish="side">
+              {% for dish in meal.dishes if dish.course == "Side" %}
+              <div class="tag" data-text="{{ dish.text }}">{{ dish.name }}</div>
+              {% endfor %}
+              <span class="add-tag">+</span>
+            </div>
+            <div class="tag-list dish-dessert" data-dish="dessert">
+              {% for dish in meal.dishes if dish.course == "Dessert" %}
+              <div class="tag" data-text="{{ dish.text }}">{{ dish.name }}</div>
+              {% endfor %}
+              <span class="add-tag">+</span>
+            </div>
+            <input type='button' class='btn btn-xs btn-default save-meal' value='Save' disabled>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div id="autocomplete" style="display: none;"></div>
+    <script>
+      var clicked_meal;
+      var clicked_dish;
+      var show_done = false;
+      var autocomplete = {
+        main: [],
+        side: [],
+        dessert: []
+      };
+      
+      $(document).ready(function() {
+        // Hide tagged
+        $(".meal.done").hide();
+        $("#res-count").text($(".meal:visible").length);
+        $(".toggle-tagged").on("click", function() {
+          show_done = !show_done;
+          if (show_done) {
+            $(this).removeClass("btn-default").addClass("btn-primary")
+              .val("Hide Tagged");
+          } else {
+            $(this).removeClass("btn-primary").addClass("btn-default")
+              .val("Show Tagged");
+          }
+          $("#searchbox").trigger("keyup");
+        });
+        
+        // Search
+        $("#searchbox").on("keyup", function() {
+          q = this.value.toUpperCase();
+          if (q === "") {
+            $(".meal").show();
+            if (!show_done) $(".meal.done").hide();
+          } else {
+            $(".meal").each(function (i, meal) {
+              $m = $(meal);
+              if (show_done) {
+                mealText = $m.find(".meal-text").text().toUpperCase();
+              } else {
+                mealText = $m.find("textarea").val().toUpperCase();
+              }
+              if (mealText.includes(q)) {
+                $m.show();
+              } else {
+                $m.hide();
+              }
+            });
+          }
+          $("#res-count").text($(".meal:visible").length);
+        });
+        
+        // Tag creation
+        $(".add-tag").popover({
+          html: true,
+          placement: "bottom",
+          content: "<div class='form-inline form-group-sm'>\
+                      <div class='form-group'>\
+                        <label>Dish</label>\
+                        <input type='text' class='form-control' name='name' autocomplete='off'>\
+                      </div>\
+                      <div class='form-group'>\
+                        <label>Text</label>\
+                        <input type='text' class='form-control' name='text'>\
+                      </div>\
+                      <input type='button' class='btn btn-success save-tag' value='Save'>\
+                    </div>"
+        });
+        
+        $(".add-tag").on("click", function() {
+          $(".add-tag").not(this).popover("hide");
+          clicked_meal = $(this).closest(".meal").data("id");
+          clicked_dish = $(this).closest(".tag-list").data("dish");
+        });
+        
+        $("body").on("click", ".save-tag", function() {
+          // Get details
+          let meal = $(".meal[data-id='" + clicked_meal + "']");
+          let tagList = meal.find(".tag-list[data-dish='" + clicked_dish + "']");
+          let form = $(this).closest(".form-inline");
+          let name = form.find("[name='name']").val();
+
+          // Build and append tag
+          let tag = $("<div>").addClass("tag");
+          tag.data("text", form.find("[name='text']").val());
+          tag.text(name);
+          tagList.prepend(tag);
+          
+          // Enable save
+          meal.find(".save-meal").prop("disabled", false)
+            .removeClass("btn-default").addClass("btn-success");
+          
+          // Add to autocomplete list
+          if (autocomplete[clicked_dish].indexOf(name) === -1) {
+            autocomplete[clicked_dish].push(name);
+            autocomplete[clicked_dish].sort();
+          }
+          
+          // Hide Popover
+          $(".add-tag").popover("hide");
+        });
+        
+        function getTagList(meal) {
+          let tagList = [];
+          meal.find(".dish-main .tag").map(function (i, e) {
+            tagList.push({
+              name: $(e).text(),
+              text: $(e).data("text"),
+              course: "Main"
+            });
+          });
+          meal.find(".dish-side .tag").map(function (i, e) {
+            tagList.push({
+              name: $(e).text(),
+              text: $(e).data("text"),
+              course: "Side"
+            });
+          });
+          meal.find(".dish-dessert .tag").map(function (i, e) {
+            tagList.push({
+              name: $(e).text(),
+              text: $(e).data("text"),
+              course: "Dessert"
+            });
+          });
+          return tagList;
+        }
+        
+        $(".meal textarea").on("change", function() {
+          $(this).closest(".meal").find(".save-meal").prop("disabled", false)
+            .removeClass("btn-default").addClass("btn-success");
+        });
+        
+        $(".save-meal").on("click", function() {
+          let meal = $(this).closest(".meal");
+          let update = {
+            untagged: meal.find("textarea").val(),
+            dishes: getTagList(meal)
+          };
+          $.ajax({
+            method: "POST",
+            url: "/save_meal",
+            data: JSON.stringify({ _id: meal.data("id"), update: update }),
+            contentType: "application/json"
+          }).done(function(response) {
+            meal.find(".save-meal").prop("disabled", true)
+              .removeClass("btn-success").addClass("btn-default");
+          });
+        });
+        
+        $(".tag").on("click", function() {
+          let text = $(this).data("text");
+          let textarea = $(this).closest(".meal").find("textarea");
+          textarea.val(textarea.val() + " " + text);
+          $(this).remove();
+        });
+        
+        // Autocomplete
+        function populateAutocomplete(type) {
+          $(".dish-" + type + " .tag").each(function(i,e) {
+            dish = $(e).text();
+            if (autocomplete[type].indexOf(dish) === -1) {
+              autocomplete[type].push(dish);
+            }
+          });
+          autocomplete[type].sort();
+        }
+        populateAutocomplete("main");
+        populateAutocomplete("side");
+        populateAutocomplete("dessert");
+
+        $("body").on("focus", "[name='name']", function() {
+          $("#autocomplete")
+            .css("left", $(this).offset().left)
+            .css("top", $(this).offset().top + this.offsetHeight);
+          autocomplete[clicked_dish].forEach(function(a) {
+            li = $("<div>").text(a);
+            $("#autocomplete").append(li);
+          });
+          $("#autocomplete").show();
+        });
+
+        $("body").on("focusout", "[name='name']", function() {
+          $("#autocomplete").empty().hide();
+        });
+        
+        $("body").on("keyup", "[name='name']", function() {
+          q = this.value.toUpperCase();
+          if (q === "") {
+            $("#autocomplete div").show();
+          } else {
+            $("#autocomplete div").each(function (i, sug) {
+              $s = $(sug);
+              sugText = $s.text().toUpperCase();
+              if (sugText.includes(q)) {
+                $s.show();
+              } else {
+                $s.hide();
+              }
+            });
+          }
+        });
+        
+        $("#autocomplete").on("mousedown", "div", function() {
+          $("[name='name']").val($(this).text());
+        });
+      });
+    </script>
+  </body>
+</html>

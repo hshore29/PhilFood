@@ -1,0 +1,222 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <style>
+      .pull-right {
+        float: right;
+      }
+      
+      .grouping {
+        background-color: #efefef;
+        border: 1px solid #dedede;
+        border-radius: 3px;
+        margin-bottom: 12px;
+        padding: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Map Dishes</h1>
+      {% for map in mapped if not map._id %}
+        <span class="badge">{{ map.count }}</span>
+        {% for dish_name in map.dish_names %}
+        <div class="row grouping">
+          <div class="col-md-3 form-inline">
+            <input name="group" type="text" class="form-control input-sm">
+            <input type="button" class="btn btn-success btn-xs save-group" value="Save">
+          </div>
+          <div class="col-md-3">
+            <span class="dish-name">{{ dish_name._id }}</span>
+            <span class="glyphicon glyphicon-edit edit-name"></span>
+            <span class="badge pull-right">{{ dish_name.count }}</span>
+          </div>
+          <div class="col-md-6 expander">
+            {% for dish in dish_name.dishes %}
+            <div class="row">
+              <div class="col-md-6">
+                <span class="dish-text">{{ dish._id.text }}</span>
+                <span class="glyphicon glyphicon-edit edit-text"></span>
+                <span class="badge pull-right">{{ dish.count }}</span>
+              </div>
+              <div class="col-md-6 expander">
+                {% for meal in dish.meals %}
+                <div class="meal-id" data-menu="{{ meal.menu }}">{{ meal._id }}</div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      {% endfor %}
+      {% for map in mapped if map._id %}
+      <div class="row grouping">
+        <div class="col-md-3">
+          <span class="dish-group">{{ map._id }}</span>
+          <span class="badge pull-right">{{ map.count }}</span>
+        </div>
+        <div class="col-md-9 expander">
+          {% for dish_name in map.dish_names %}
+          <div class="row">
+            <div class="col-md-4">
+              <span class="dish-name">{{ dish_name._id }}</span>
+              <span class="glyphicon glyphicon-edit edit-name"></span>
+              <span class="badge pull-right">{{ dish_name.count }}</span>
+            </div>
+            <div class="col-md-8 expander">
+              {% for dish in dish_name.dishes %}
+              <div class="row">
+                <div class="col-md-6">
+                  <span class="dish-text">{{ dish._id.text }}</span>
+                  <span class="glyphicon glyphicon-edit edit-text"></span>
+                  <span class="badge pull-right">{{ dish.count }}</span>
+                </div>
+                <div class="col-md-6 expander">
+                  {% for meal in dish.meals %}
+                  <div class="meal-id" data-menu="{{ meal.menu }}">{{ meal._id }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <script>
+      $(document).ready(function() {
+        // Hide & Show sub sections
+        $('.expander').hide();
+        $('.badge').on("click", function() {
+          $(this).parent().next('.expander').toggle();
+        });
+        
+        // Edit tags
+        $(".edit-text").popover({
+          html: true,
+          placement: "bottom",
+          content: "<div class='form-inline form-group-sm'>\
+                      <div class='form-group'>\
+                        <label>Dish</label>\
+                        <input type='text' class='form-control' name='new_name' autocomplete='off'>\
+                      </div>\
+                      <div class='form-group'>\
+                        <label>Text</label>\
+                        <input type='text' class='form-control' name='new_text' autocomplete='off'>\
+                      </div>\
+                      <input type='button' class='btn btn-success save-tag' value='Save'>\
+                      <input type='hidden' name='_ids'>\
+                      <input type='hidden' name='old_name'>\
+                      <input type='hidden' name='old_text'>\
+                    </div>"
+        });
+        
+        $(".edit-text").on("click", function() {
+          $(".edit-text").not(this).popover("hide");
+          let dish_text = $(this).parent().find(".dish-text").text();
+          let dish_name = $(this).closest(".row").parent().closest(".row").find(".dish-name").text();
+          let meal_ids = $(this).closest(".row").find(".meal-id").map((i, e) => $(e).text()).toArray().join();
+          $("input[name='new_name']").val(dish_name);
+          $("input[name='old_name']").val(dish_name);
+          $("input[name='new_text']").val(dish_text);
+          $("input[name='old_text']").val(dish_text);
+          $("input[name='_ids']").val(meal_ids);
+        });
+        
+        $("body").on("click", ".save-tag", function() {
+          let form = $(this).closest(".form-inline");
+          
+          let _ids = form.find("input[name='_ids']").val();
+          let update = {
+            old_text: form.find("input[name='old_text']").val(),
+            new_text: form.find("input[name='new_text']").val(),
+            old_name: form.find("input[name='old_name']").val(),
+            new_name: form.find("input[name='new_name']").val()
+          };
+          $.ajax({
+            method: "POST",
+            url: "/update_meal",
+            data: JSON.stringify({ _ids: _ids, update: update }),
+            contentType: "application/json"
+          }).done(function(response) {
+            console.log(response);
+          });
+          
+          // Hide Popover
+          $(".edit-text").popover("hide");
+        });
+        
+        $(".edit-name").popover({
+          html: true,
+          placement: "bottom",
+          content: "<div class='form-inline form-group-sm'>\
+                      <div class='form-group'>\
+                        <label>Group</label>\
+                        <input type='text' class='form-control' name='new_group' autocomplete='off'>\
+                      </div>\
+                      <div class='form-group'>\
+                        <label>Name</label>\
+                        <input type='text' class='form-control' name='new_name' autocomplete='off'>\
+                      </div>\
+                      <input type='button' class='btn btn-success save-name' value='Save'>\
+                      <input type='hidden' name='_ids'>\
+                      <input type='hidden' name='old_name'>\
+                    </div>"
+        });
+        
+        $(".edit-name").on("click", function() {
+          $(".edit-name").not(this).popover("hide");
+          let dish_name = $(this).parent().find(".dish-name").text();
+          let dish_group = $(this).closest(".grouping").find(".dish-group").text();
+          let meal_ids = $(this).closest(".row").find(".meal-id").map((i, e) => $(e).text()).toArray().join();
+          $("input[name='new_name']").val(dish_name);
+          $("input[name='old_name']").val(dish_name);
+          $("input[name='new_group']").val(dish_group);
+          $("input[name='_ids']").val(meal_ids);
+        });
+        
+        $("body").on("click", ".save-name", function() {
+          let form = $(this).closest(".form-inline");
+          
+          let _ids = form.find("input[name='_ids']").val();
+          let update = {
+            old_name: form.find("input[name='old_name']").val(),
+            new_name: form.find("input[name='new_name']").val(),
+            old_group: form.find("input[name='old_group']").val(),
+            new_group: form.find("input[name='new_group']").val()
+          };
+          $.ajax({
+            method: "POST",
+            url: "/update_meal_name",
+            data: JSON.stringify({ _ids: _ids, update: update }),
+            contentType: "application/json"
+          }).done(function(response) {
+            console.log(response);
+          });
+          
+          // Hide Popover
+          $(".edit-name").popover("hide");
+        });
+        
+        $("body").on("click", ".save-group", function() {
+          let name = $(this).closest(".grouping").find(".dish-name").text();
+          let group = $(this).parent().find("input[name='group']").val();
+          $.ajax({
+            method: "POST",
+            url: "/add_group",
+            data: JSON.stringify({ name: name, group: group }),
+            contentType: "application/json"
+          }).done(function(response) {
+            console.log(response);
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,352 @@
+/* Bootstrap defaults */
+#yui_3_17_2_1_1613796000755_575,
+#block-4210a0a71cd66fa60428 {
+  width: 100%;
+}
+.phil-food * {
+  box-sizing: border-box;
+}
+.phil-food {
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #333;
+}
+a {
+  color: #337ab7;
+  text-decoration: none;
+}
+a:focus, a:hover {
+  color: #23527c;
+  text-decoration: underline;
+}
+a:active, a:hover {
+  outline: 0;
+}
+hr {
+  margin: 1px 0 20px 0;
+  width: 100% !important;
+  border: 0;
+  border-top: 1px solid #eee;
+}
+
+/* Force Show WebKit Scroll bars */
+.summary-list.scroll::-webkit-scrollbar{
+  background-color: white;
+  border-radius: 6px;
+  width: 12px;
+}
+.summary-list.scroll::-webkit-scrollbar-thumb{
+  background-color: #bbb;
+  border-radius: 6px;
+  border: 3px solid white;
+}
+.summary-list.scroll::-webkit-scrollbar-thumb:vertical{
+  height: 12px!important;
+  width: 12px;
+}
+
+/* Bootstrap button */
+.btn {
+  display: inline-block;
+  font-weight: 400;
+  text-align: center;
+  vertical-align: middle;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  border: 1px solid transparent;
+  padding: 1px 15px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 3px;
+  transition:
+    color .15s ease-in-out,
+    background-color .15s ease-in-out,
+    border-color .15s ease-in-out,
+    box-shadow .15s ease-in-out;
+  margin: 0;
+  cursor: pointer;
+  color: #007bff;
+  border-color: #007bff;
+  background-color: #fff;
+}
+.btn:active {
+  color: #fff;
+  background-color: #007bff;
+  border-color: #007bff;
+}
+.btn:focus {
+  outline: 0;
+  box-shadow: 0 0 0 .2rem rgba(0,123,255,.5);
+}
+.btn:hover {
+  text-decoration: none;
+  color: #fff;
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+/* Container Sizing */
+.fridge {
+  height: 630px;
+  width: 370px;
+  float: left;
+}
+.summary {
+  height: 630px;
+  margin-left: 385px;
+  overflow-y: scroll;
+}
+
+/* Random Menu Fridge */
+.fridge {
+  background-color: silver;
+  position: relative;
+}
+.fridge .fridge-top-left {
+  height: 35px;
+  width: 20px;
+  float: left;
+  border-right: 2px solid #333;
+  box-shadow: inset 0 -5px 1px -5px #FFF;
+}
+.fridge .fridge-top {
+  height: 35px;
+  box-shadow: inset 0 -5px 3px -5px #FFF;
+}
+.fridge .fridge-top .btn {
+  margin: 7px 0 0 95px;
+  box-shadow: 1.5px 1.5px 4px -1px #333;
+}
+.fridge .fridge-door {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  justify-content: space-around;
+  padding: 20px 50px 0 10px;
+  height: 595px;
+  width: 100%;
+  position: absolute;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 14px;
+  line-height: 1.42857143;
+  text-transform: uppercase;
+  word-wrap: break-word;
+  border-style: solid;
+  border-color: #333;
+  border-width: 5px 5px 0 0;
+  box-shadow: inset -5px 5px 4px -5px #FFF;
+}
+.fridge .lock {
+  position: absolute;
+  height: 9px;
+  width: 9px;
+  top: 14px;
+  right: 22px;
+  background-color: #ccc;
+  border: 1px solid #eee;
+  border-radius: 5px;
+  box-shadow: 0 0 2px 1px #333;
+}
+.fridge .lock .keyhole {
+  background-color: #333;
+  width: 2px;
+  height: 5px;
+  position: absolute;
+  left: 2.5px;
+  bottom: 1px;
+}
+.fridge .handle {
+  position: absolute;
+  bottom: 12%;
+  right: 30px;
+  width: 70px;
+  height: 180px;
+  border-style: solid;
+  border-color: #333;
+  border-width: 5px 10px 5px 0;
+  background-image: linear-gradient(to right, #C0C0C0, #949494);
+  box-shadow: inset -10px 0 10px -10px #000000;
+}
+.fridge .menu {
+  flex: 0 0 130px;
+  height: 165px;
+  margin-bottom: 15px;
+  background-color: #F7F3F0;
+  padding: 0 5px;
+  position: relative;
+}
+.fridge .menu .day {
+  text-align: center;
+  margin: 0 15% 2px 15%;
+  border-style: solid;
+  border-width: 1.2px;
+  border-top: none;
+  border-radius: 0 5px 28px 4px / 0 28px 5px 30px;
+}
+/* Sharpie Colors */
+.marker-black { color: #444; border-color: #444; }
+.marker-blue { color: #223DA2; border-color: #223DA2; }
+.marker-purple { color: #59369E; border-color: #59369E; }
+.marker-red { color: #CD5157; border-color: #CD5157; }
+.marker-brown { color: #6B4D49; border-color: #6B4D49; }
+.marker-magenta { color: #CE3F96; border-color: #CE3F96; }
+.marker-green { color: #3A6A56; border-color: #3A6A56; }
+.marker-lime-green { color: #5C9346; border-color: #5C9346; }
+.marker-brilliant-blue { color: #0B76AA; border-color: #0B76AA; }
+.marker-aqua { color: #2B8F87; border-color: #2B8F87; }
+/* Tape Styles */
+.tape {
+  position: absolute;
+  width: 30px;
+}
+.tape-masking {
+  background-color: beige;
+  opacity: 0.9;
+}
+.tape-painter {
+  background-color: #006CAF;
+  opacity: 0.95;
+}
+.tape-scotch {
+  background-color: #222;
+  mix-blend-mode: screen;
+}
+.tape-duct {
+  background-color: gray;
+}
+.tape-electrical {
+  background-color: black;
+}
+
+/* Summary Lists */
+h1 {
+  font-size: 32px;
+  margin: 10px 0;
+  font-weight: 600;
+  line-height: 1.1;
+  font-style: normal;
+}
+.summary-head {
+  font-weight: 800;
+  font-size: 16pt;
+  font-style: italic;
+  color: #555;
+  padding: 3px 0 0 5px;
+  border-bottom: 2px solid #555;
+  position: relative;
+  cursor: pointer;
+}
+.summary-head .count {
+  position: absolute;
+  right: 0.2em;
+  font-size: 10pt;
+  font-weight: 300;
+  color: #777;
+  bottom: 0.2em;
+  font-style: normal;
+}
+.summary-row {
+  padding: 0 5px;
+  overflow: hidden;
+  font-size: 10.5pt;
+}
+.summary-row.toggle {
+  background-color: #EEE;
+  font-size: 10pt;
+  transition: height 0.3s ease-out;
+  height: 0;
+}
+.summary-info {
+  margin: 4px 0 8px 0;
+  font-size: 0.8em;
+  font-weight: 300;
+  letter-spacing: 0.03em;
+}
+.summary-list {
+  width: 25%;
+  float: left;
+  margin-bottom: 5px;
+}
+.summary-list.scroll {
+  max-height: 315px;
+  overflow-y: scroll;
+  padding-left: 8px;
+}
+.summary-list.scroll:first-child {
+  padding-left: 0;
+}
+.summary-list.scroll .summary-list-item {
+  margin-right: 0.4em;
+}
+.summary-list-head {
+  font-size: 1.2em;
+  font-weight: 600;
+}
+.summary-list-item {
+  margin-right: 0.8em;
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 5px 25px 0 0;
+}
+.summary-list-item .count {
+  position: absolute;
+  right: 0;
+  font-size: 0.9em;
+  font-weight: 500;
+  color: #777;
+}
+
+/* Menu Timeline */
+.plot-holder {
+  position: relative;
+}
+#meal-plot {
+  width: 100%;
+  height: 150px;
+}
+#key-dishes {
+  height: 120px;
+  position: relative;
+}
+#key-dishes div {
+  position: absolute;
+  font-size: 9pt;
+  transform: rotate(80deg);
+  width: 100px;
+  top: 35px;
+}
+#key-dishes div p {
+  line-height: 1.2;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0;
+}
+#menu-modal {
+  position: absolute;
+  left: -500px;
+  top: -500px;
+  background: white;
+  box-shadow: 5px 5px 10px;
+  border-radius: 2px;
+  width: 100px;
+  padding: 5px;
+  font-size: 8pt;
+  text-transform: uppercase;
+  word-wrap: break-word;
+  z-index: 312;
+}
+#menu-day {
+  font-weight: 800;
+  text-align: center;
+  font-size: 10pt;
+  padding-bottom: 2px;
+}
+h4 {
+  margin: 0 0 5px 0;
+  font-weight: 500;
+}
