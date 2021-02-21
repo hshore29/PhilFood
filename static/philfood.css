@@ -104,6 +104,7 @@ hr {
 .fridge {
   background-color: silver;
   position: relative;
+  font-family: 'Phil Hand', sans-serif;
 }
 .fridge .fridge-top-left {
   height: 35px;
@@ -129,11 +130,12 @@ hr {
   height: 595px;
   width: 100%;
   position: absolute;
-  font-family: 'Patrick Hand', cursive;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.42857143;
-  text-transform: uppercase;
-  word-wrap: break-word;
+  letter-spacing: -0.1em;
+  word-spacing: 0.25em;
+  font-weight: 800;
+  font-kerning: normal;
   border-style: solid;
   border-color: #333;
   border-width: 5px 5px 0 0;

@@ -135,6 +135,15 @@ function addTapeStrip(pos, menu, type) {
   tape.style.transform = "translate("+t1+"px,"+t2+"px)rotate("+r+"deg)";
 }
 
+function joshCase(s) {
+  return s.replace(/w/g, 'W')
+          .replace(/W\//g, 'w')
+          .replace(/l/g, 'L')
+          .replace(/u/g, 'U')
+          .replace(/m/g, 'M')
+          .replace(/s/g, 'S');
+}
+
 function addMenuToFridge(menu, fridge) {
   // Create menu div
   let menudiv = document.createElement("div");
@@ -154,31 +163,32 @@ function addMenuToFridge(menu, fridge) {
 
   // Write date and dishes on menu
   let day = document.createElement("div");
-  day.innerHTML = meta.days[menu.day].name;
+  day.innerHTML = meta.days[menu.day].name.toUpperCase();
   day.className = "day";
   let text = document.createElement("div");
-  text.innerHTML = menu.meal.join(', ');
+  text.innerHTML = joshCase(menu.meal.join(', '));
   text.className = "text"
   menudiv.appendChild(day);
   menudiv.appendChild(text);
 
   // While there's overflow, try stripping out words
-  while ((text.clientHeight / parseInt(getComputedStyle(text).lineHeight)) > 7) {
+  let lineHeight = parseInt(getComputedStyle(text).lineHeight);
+  while ((text.clientHeight / lineHeight + 1) > (165 / lineHeight)) {
     // Remove w/, ala, alla
     for (let i=menu.meal.length-1; i >= 0; i--) {
       if (menu.meal[i].includes(' w/ ')) {
         menu.meal[i] = menu.meal[i].replace(' w/ ', ' ');
-        text.innerHTML = menu.meal.join(', ');
+        text.innerHTML = joshCase(menu.meal.join(', '));
         break;
       }
       if (menu.meal[i].includes(' ala ')) {
         menu.meal[i] = menu.meal[i].replace(' ala ', ' ');
-        text.innerHTML = menu.meal.join(', ');
+        text.innerHTML = joshCase(menu.meal.join(', '));
         break;
       }
       if (menu.meal[i].includes(' alla ')) {
         menu.meal[i] = menu.meal[i].replace(' alla ', ' ');
-        text.innerHTML = menu.meal.join(', ');
+        text.innerHTML = joshCase(menu.meal.join(', '));
         break;
       }
     }
@@ -189,16 +199,16 @@ function addMenuToFridge(menu, fridge) {
     }
     if (menu.meal[idx].split(' ').length > 5) {
       menu.meal[idx] = menu.meal[idx].split(' ').slice(0, -1).join(' ');
-      text.innerHTML = menu.meal.join(', ');
+      text.innerHTML = joshCase(menu.meal.join(', '));
     } else if ((idx > 1) && (menu.meal[idx].split(' ').length > 2)) {
       menu.meal[idx] = menu.meal[idx].split(' ').slice(0, -1).join(' ');
-      text.innerHTML = menu.meal.join(', ');
+      text.innerHTML = joshCase(menu.meal.join(', '));
     } else if (menu.meal[idx].length > 15) {
       menu.meal[idx] = menu.meal[idx].slice(0, -6);
-      text.innerHTML = menu.meal.join(', ');
+      text.innerHTML = joshCase(menu.meal.join(', '));
     } else if (menu.meal[idx].length > 8) {
       menu.meal[idx] = menu.meal[idx].slice(0, -4);
-      text.innerHTML = menu.meal.join(', ');
+      text.innerHTML = joshCase(menu.meal.join(', '));
     } else {
       break;
     }

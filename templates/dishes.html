@@ -14,6 +14,10 @@
     <script src="/static/fontfaceobserver.standalone.js"></script>
     <style>
       .phil-food { margin: 17px 30px; }
+      @font-face {
+        font-family: 'Phil Hand';
+        src: url(/static/Philfont-Regular-Kerned.otf);
+      }
     </style>
   </head>
   <body>
@@ -128,7 +132,7 @@
       }, 100);
 
       // Font needs to have loaded before we can check for overflow
-      new FontFaceObserver('Patrick Hand').load().then(drawMenus);
+      new FontFaceObserver('Phil Hand').load().then(drawMenus);
 
       drawTimeline();
     </script>
