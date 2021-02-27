@@ -36,14 +36,18 @@ def get_mapped_meals():
     mapped = get_db().phil_food.meals_v2.aggregate([
         {'$unwind': '$dishes'},
         {'$group': {
-            '_id': {'name': '$dishes.name', 'text': '$dishes.text'},
+            '_id': {
+                'name': '$dishes.name',
+                'text': '$dishes.text',
+                'course': '$dishes.course'
+                },
             'count': {'$sum': 1},
             'meals': {'$push': {'_id': '$_id', 'menu': '$meal'}}
             }
          },
         {'$sort': {'_id.text': 1}},
         {'$group': {
-            '_id': '$_id.name',
+            '_id': {'name': '$_id.name', 'course': '$_id.course'},
             'dishes': {'$push': '$$ROOT'},
             'count': {'$sum': '$count'}
             }
@@ -51,23 +55,27 @@ def get_mapped_meals():
         {'$sort': {'_id': 1}},
         {'$lookup': {
             'from': 'dishes',
-            'localField': '_id',
+            'localField': '_id.name',
             'foreignField': '_id',
             'as': 'grouping'
             }
          },
+        {'$unwind': '$grouping'},
         {'$group': {
-            '_id': '$grouping.group',
+            '_id': {'group': '$grouping.group', 'course': '$_id.course'},
             'dish_names': {'$push': '$$ROOT'},
             'count': {'$sum': '$count'}
             }
          },
         {'$sort': {'_id': 1}},
+        {'$group': {
+            '_id': {'course': '$_id.course'},
+            'dish_groups': {'$push': '$$ROOT'},
+            'count': {'$sum': '$count'}
+            }
+         }
         ])
-    mapped = list(mapped)
-    for m in mapped:
-        m['_id'] = m['_id'][0] if m['_id'] else None
-    return mapped
+    return list(mapped)
 
 # Update functions for changes made in tagger & mapper
 def update_meal(_id, update):

@@ -20,8 +20,9 @@
   </head>
   <body>
     <div class="container">
-      <h1>Map Dishes</h1>
-      {% for map in mapped if not map._id %}
+      {% for course in mapped %}
+      <h1>{{ course._id.course }}</h1>
+      {% for map in course.dish_groups if not map._id.group %}
         <span class="badge">{{ map.count }}</span>
         {% for dish_name in map.dish_names %}
         <div class="row grouping">
@@ -30,7 +31,7 @@
             <input type="button" class="btn btn-success btn-xs save-group" value="Save">
           </div>
           <div class="col-md-3">
-            <span class="dish-name">{{ dish_name._id }}</span>
+            <span class="dish-name">{{ dish_name._id.name }}</span>
             <span class="glyphicon glyphicon-edit edit-name"></span>
             <span class="badge pull-right">{{ dish_name.count }}</span>
           </div>
@@ -53,17 +54,17 @@
         </div>
         {% endfor %}
       {% endfor %}
-      {% for map in mapped if map._id %}
+      {% for map in course.dish_groups if map._id.group %}
       <div class="row grouping">
         <div class="col-md-3">
-          <span class="dish-group">{{ map._id }}</span>
+          <span class="dish-group">{{ map._id.group }}</span>
           <span class="badge pull-right">{{ map.count }}</span>
         </div>
         <div class="col-md-9 expander">
           {% for dish_name in map.dish_names %}
           <div class="row">
             <div class="col-md-4">
-              <span class="dish-name">{{ dish_name._id }}</span>
+              <span class="dish-name">{{ dish_name._id.name }}</span>
               <span class="glyphicon glyphicon-edit edit-name"></span>
               <span class="badge pull-right">{{ dish_name.count }}</span>
             </div>
@@ -88,6 +89,7 @@
         </div>
       </div>
       {% endfor %}
+    {% endfor %}
     </div>
     <script>
       $(document).ready(function() {
